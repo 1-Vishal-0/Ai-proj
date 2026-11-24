@@ -1,0 +1,117 @@
+﻿.workspace-page {
+  display: grid;
+  gap: 1.25rem;
+  color: #16263b;
+}
+.workspace-page h1 {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+.workspace-page header p,
+.workspace-note {
+  color: #516071;
+  font-size: 0.875rem;
+}
+.workspace-split {
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: start;
+}
+.workspace-panel {
+  background: white;
+  border: 1px solid #dce2e7;
+  border-radius: 12px;
+  padding: 1.25rem;
+  min-width: 0;
+  overflow: auto;
+}
+.workspace-panel h2 {
+  font-size: 1rem;
+  font-weight: 650;
+  margin-bottom: 0.9rem;
+}
+.workspace-panel form,
+.workspace-fields {
+  display: grid;
+  gap: 0.85rem;
+}
+.workspace-field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 550;
+}
+.workspace-field input,
+.workspace-field select,
+.workspace-field textarea {
+  border: 1px solid #bac6d1;
+  background: white;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  min-width: 0;
+  width: 100%;
+  font-weight: 400;
+}
+.workspace-field textarea {
+  font-family: monospace;
+  min-height: 6rem;
+}
+.workspace-page table {
+  width: 100%;
+  text-align: left;
+  font-size: 0.85rem;
+}
+.workspace-page th,
+.workspace-page td {
+  padding: 0.65rem 0.45rem;
+  border-bottom: 1px solid #e3e8ed;
+}
+.workspace-page th {
+  font-size: 0.75rem;
+  color: #586779;
+}
+.workspace-page a {
+  color: #3748aa;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.workspace-error,
+.workspace-success {
+  padding: 0.7rem;
+  background: #fff3f1;
+  color: #882e22;
+  font-size: 0.85rem;
+  border-radius: 5px;
+}
+.workspace-success {
+  background: #eef6f1;
+  color: #185836;
+}
+.workspace-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 0.7rem;
+}
+.workspace-metrics a {
+  background: white;
+  border: 1px solid #dce2e7;
+  border-top: 3px solid #476695;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #34475f;
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+.workspace-metrics strong {
+  display: block;
+  color: #16263b;
+  font-size: 1.7rem;
+  margin-top: 0.35rem;
+}
+@media (max-width: 760px) {
+  .workspace-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

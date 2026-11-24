@@ -1,4 +1,4 @@
-import {
+import type {
   User,
   Department,
   Programme,
@@ -59,13 +59,13 @@ export const initialVTUSchemes: VTUScheme[] = [
   },
 ];
 
-// AMC Engineering College Departments
+// Fictional Engineering College Departments
 export const initialDepartments: Department[] = [
   {
     id: 'dept-cse',
     name: 'Computer Science and Engineering',
     code: 'CSE',
-    hod_name: 'Dr. A.G. Nataraj',
+    hod_name: 'Demo department chair',
     student_intake: 240,
     sections_count: 4,
     is_active: true,
@@ -75,7 +75,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-cse-aiml',
     name: 'CSE – Artificial Intelligence and Machine Learning',
     code: 'CSE-AIML',
-    hod_name: 'Dr. S. K. Manjunath',
+    hod_name: 'Demo department chair',
     student_intake: 120,
     sections_count: 2,
     is_active: true,
@@ -85,7 +85,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-aiml',
     name: 'Artificial Intelligence and Machine Learning',
     code: 'AIML',
-    hod_name: 'Dr. Ramesh Babu',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -95,7 +95,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-cse-ds',
     name: 'CSE – Data Science',
     code: 'CSE-DS',
-    hod_name: 'Dr. B. K. Raghavendra',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -105,7 +105,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-ise',
     name: 'Information Science and Engineering',
     code: 'ISE',
-    hod_name: 'Dr. H. L. Suresh',
+    hod_name: 'Demo department chair',
     student_intake: 120,
     sections_count: 2,
     is_active: true,
@@ -115,7 +115,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-ece',
     name: 'Electronics and Communication Engineering',
     code: 'ECE',
-    hod_name: 'Dr. Chandrasekhar',
+    hod_name: 'Demo department chair',
     student_intake: 180,
     sections_count: 3,
     is_active: true,
@@ -125,7 +125,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-eee',
     name: 'Electrical and Electronics Engineering',
     code: 'EEE',
-    hod_name: 'Dr. M. S. Nagaraj',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -135,7 +135,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-me',
     name: 'Mechanical Engineering',
     code: 'ME',
-    hod_name: 'Dr. Girisha C.',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -145,7 +145,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-cv',
     name: 'Civil Engineering',
     code: 'CV',
-    hod_name: 'Dr. K. S. Shashishekar',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -155,7 +155,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-ae',
     name: 'Aeronautical Engineering',
     code: 'AE',
-    hod_name: 'Dr. Pradeep Kumar',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -165,7 +165,7 @@ export const initialDepartments: Department[] = [
     id: 'dept-mt',
     name: 'Mechatronics Engineering',
     code: 'MT',
-    hod_name: 'Dr. Vinayaka P.',
+    hod_name: 'Demo department chair',
     student_intake: 60,
     sections_count: 1,
     is_active: true,
@@ -1490,35 +1490,35 @@ export const initialSubjects: Subject[] = [
 ];
 
 // EXACTLY THREE INITIAL DEMONSTRATION ACCOUNTS
-// 1. One Admin (Dr. A.G. Nataraj)
-// 2. One Teacher (Prof. Sandhya S.)
-// 3. One Student (Rahul M. - Roll No: ENG22CS089)
+// 1. One Admin (Demo Administrator)
+// 2. One Teacher (Demo Faculty)
+// 3. One Student (Demo Student - Roll No: ENG22CS089)
 export const initialUsers: User[] = [
   {
     id: 'user-amcec-admin',
-    name: 'Dr. A.G. Nataraj',
-    email: 'admin@portal.edu',
+    name: 'Demo Administrator',
+    email: 'admin@attendance.example',
     role: 'admin',
-    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
-    phone: '+91 98450 11223',
+
+
     created_at: '2026-08-01T09:00:00Z',
   },
   {
     id: 'user-amcec-teacher',
-    name: 'Prof. Sandhya S.',
-    email: 'teacher@portal.edu',
+    name: 'Demo Faculty',
+    email: 'teacher@attendance.example',
     role: 'teacher',
-    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100',
-    phone: '+91 98450 44556',
+
+
     created_at: '2026-08-01T09:00:00Z',
   },
   {
     id: 'user-amcec-student',
-    name: 'Rahul M.',
-    email: 'student@portal.edu',
+    name: 'Demo Student',
+    email: 'student@attendance.example',
     role: 'student',
-    avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100',
-    phone: '+91 98450 77889',
+
+
     created_at: '2026-08-15T09:00:00Z',
   },
 ];
@@ -1549,7 +1549,7 @@ export const initialStudents: Student[] = [
     current_semester: 5,
     section: 'A',
     guardian_email: 'parent@example.com',
-    guardian_phone: '+91 98451 99887',
+
   },
 ];
 
@@ -1570,7 +1570,7 @@ export const initialTeacherAssignments: TeacherAssignment[] = [
   },
 ];
 
-// Master Timetable for AMCEC
+// Master Timetable for Demo College
 export const initialTimetable: TimetableEntry[] = [
   // Monday
   {
@@ -1810,7 +1810,7 @@ export const initialAcademicActivities: AcademicActivity[] = [
     semester: 5,
     department_id: 'dept-cse',
     academic_year: '2026-2027',
-    faculty_coordinator: 'Prof. Ramesh K. (Dept of ME)',
+    faculty_coordinator: 'Demo Faculty (Mechanical Engineering)',
     credits: 0,
     status: 'active',
     description: 'Community service, blood donation camps and rural digital literacy awareness campaigns.',
@@ -1822,7 +1822,7 @@ export const initialAcademicActivities: AcademicActivity[] = [
     semester: 3,
     department_id: 'dept-cse',
     academic_year: '2026-2027',
-    faculty_coordinator: 'Prof. Sandhya S. (Dept of CSE)',
+    faculty_coordinator: 'Demo Faculty (Dept of CSE)',
     credits: 1,
     status: 'active',
     description: 'Mandatory activity course encompassing heritage preservation and water conservation modules.',
@@ -1834,7 +1834,7 @@ export const initialAcademicActivities: AcademicActivity[] = [
     semester: 5,
     department_id: 'dept-cse',
     academic_year: '2026-2027',
-    faculty_coordinator: 'Dr. A.G. Nataraj (HOD CSE)',
+    faculty_coordinator: 'Demo Administrator (HOD CSE)',
     credits: 3,
     status: 'active',
     description: 'Patent filing procedures, literature review methodologies and technical paper authorship.',
@@ -1846,7 +1846,7 @@ export const initialAcademicActivities: AcademicActivity[] = [
     semester: 4,
     department_id: 'dept-cse',
     academic_year: '2026-2027',
-    faculty_coordinator: 'Prof. Chandrashekar (Dept of ECE)',
+    faculty_coordinator: 'Demo Faculty (Electronics Engineering)',
     credits: 1,
     status: 'completed',
     description: 'Ethical conduct, interpersonal relationships and professional engineering ethics.',
@@ -1868,7 +1868,7 @@ export const initialNotifications: Notification[] = [
     id: 'notif-amcec-2',
     user_id: 'user-amcec-teacher',
     title: 'Pending Attendance Correction Request',
-    message: 'Student Rahul M. (ENG22CS089) submitted an attendance correction request for BCS501.',
+    message: 'Student Demo Student (ENG22CS089) submitted an attendance correction request for BCS501.',
     type: 'warning',
     is_read: false,
     link: '/teacher/corrections',
@@ -1880,7 +1880,7 @@ export const initialAuditLogs: AuditLog[] = [
   {
     id: 'log-amcec-1',
     user_id: 'user-amcec-admin',
-    user_name: 'Dr. A.G. Nataraj',
+    user_name: 'Demo Administrator',
     user_role: 'admin',
     action: 'INITIALIZE_INSTITUTION_SETTINGS',
     entity: 'InstitutionSettings',
@@ -1892,7 +1892,7 @@ export const initialAuditLogs: AuditLog[] = [
   {
     id: 'log-amcec-2',
     user_id: 'user-amcec-admin',
-    user_name: 'Dr. A.G. Nataraj',
+    user_name: 'Demo Administrator',
     user_role: 'admin',
     action: 'CONFIGURE_ACADEMIC_SCHEMES',
     entity: 'VTUScheme',
@@ -1902,3 +1902,13 @@ export const initialAuditLogs: AuditLog[] = [
     timestamp: `${getPastDate(10)}T09:30:00Z`,
   },
 ];
+
+
+export const demoSeed = {
+  users: initialUsers, departments: initialDepartments, programmes: initialProgrammes, vtuSchemes: initialVTUSchemes,
+  classes: initialClasses, subjects: initialSubjects, teachers: initialTeachers, students: initialStudents,
+  teacherAssignments: initialTeacherAssignments, timetable: initialTimetable, timetableChangeLogs: [],
+  attendanceSessions: initialAttendanceSessions, attendanceRecords: initialAttendanceRecords,
+  correctionRequests: initialCorrectionRequests, academicActivities: initialAcademicActivities,
+  notifications: initialNotifications, auditLogs: initialAuditLogs, settings: initialSettings, enrollments: [],
+};

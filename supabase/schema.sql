@@ -1,3 +1,4 @@
+-- Legacy reference. Apply supabase/migrations in order to enable the secured portal.
 -- Smart Attendance & Teacher Management Portal
 -- PostgreSQL / Supabase Relational Database Schema
 

@@ -1,272 +1,256 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu,
   Bell,
   CheckCircle2,
   AlertTriangle,
   Info,
-  Calendar,
-  Database,
-  UserCheck,
-  ChevronDown,
-  RotateCcw,
-  Check,
-  Sparkles,
-  School
+  PanelLeftOpen,
+  LogOut,
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { db } from '../../services/db/database';
-import { isSupabaseConfigured } from '../../services/supabaseClient';
+import { useAuth } from '../../hooks/useAuth';
+import { useDatabaseVersion } from '../../hooks/useDatabase';
+import { useToast } from '../../hooks/useToast';
+import { notificationsService } from '../../services/notifications.service';
+import {
+  ROUTES,
+  getBreadcrumbsForPath,
+  resolveNotificationLink,
+} from '../../app/config/navigation';
+import { Avatar } from '../ui/Avatar';
+import { DropdownMenu } from '../ui/Select';
+import { Tooltip } from '../ui/Tooltip';
 
 interface HeaderProps {
+  isSidebarCollapsed: boolean;
+  onToggleCollapse: () => void;
   onToggleMobileMenu: () => void;
-  currentTitle: string;
-  onNavigate?: (viewId: string) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  isSidebarCollapsed,
+  onToggleCollapse,
   onToggleMobileMenu,
-  currentTitle,
-  onNavigate,
 }) => {
-  const { currentUser, loginAsUser } = useAuth();
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showUserSwitcher, setShowUserSwitcher] = useState(false);
+  useDatabaseVersion();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser, logout, selectDemoAccount } = useAuth();
+  const { toast } = useToast();
 
-  const notifications = currentUser ? db.getNotifications(currentUser.id) : [];
+  const role = currentUser?.role || 'admin';
+  const crumbs = getBreadcrumbsForPath(location.pathname, role);
+  const notifications = currentUser
+    ? notificationsService.getNotifications(currentUser.id)
+    : [];
   const unreadNotifs = notifications.filter((n) => !n.is_read);
-  const settings = db.getSettings();
 
-  const handleMarkAllRead = () => {
-    if (currentUser) {
-      db.markAllNotificationsAsRead(currentUser.id);
+  const markRead = async (id?: string) => {
+    if (!currentUser) return false;
+    try {
+      if (id) await notificationsService.markAsRead(id);
+      else await notificationsService.markAllAsRead(currentUser.id);
+      return true;
+    } catch (err) {
+      toast({ variant: 'error', title: 'Unable to update notifications', description: err instanceof Error ? err.message : undefined });
+      return false;
     }
   };
-
-  const handleResetDb = () => {
-    if (window.confirm('Reset database back to initial clean academic seed records?')) {
-      db.resetToSeed();
-      window.location.reload();
-    }
-  };
-
-  // Only the 3 demo users
-  const seedUsers = db.getUsers();
 
   const getNotifIcon = (type: string) => {
     switch (type) {
       case 'alert':
-        return <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />;
+        return <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />;
       case 'warning':
-        return <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />;
+        return <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />;
       case 'success':
-        return <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />;
+        return <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />;
       default:
-        return <Info className="w-4 h-4 text-blue-500 shrink-0" />;
+        return <Info className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />;
     }
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 sm:px-6 backdrop-blur">
-      {/* Left: Mobile Menu & Institution Header */}
-      <div className="flex items-center gap-3">
+    <header className="no-print sticky top-0 z-30 flex h-14 w-full shrink-0 items-center justify-between gap-3 border-b border-border bg-white px-4 sm:px-6 lg:px-8">
+      {/* Left: Mobile Drawer Trigger, Collapsed Sidebar Expand, Breadcrumbs */}
+      <div className="flex items-center gap-2.5 min-w-0">
         <button
+          type="button"
           onClick={onToggleMobileMenu}
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-          aria-label="Toggle Navigation"
+          aria-label="Open navigation menu"
+          className="rounded-md p-1.5 text-secondary hover:bg-subtle hover:text-primary md:hidden"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-5 h-5" strokeWidth={1.75} />
         </button>
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
-            {currentTitle}
-          </h2>
-          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
-            <span className="font-bold text-slate-800">{settings.short_name}</span>
-            <span>•</span>
-            <span className="text-blue-700 font-semibold">{settings.affiliation.split(',')[0]}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-slate-400" />
-              {settings.academic_term}
-            </span>
-          </div>
-        </div>
+
+        {isSidebarCollapsed && (
+          <Tooltip content="Expand sidebar" side="bottom">
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              aria-label="Expand contextual sidebar"
+              className="hidden md:inline-flex rounded-md p-1.5 text-secondary hover:bg-subtle hover:text-primary transition-colors"
+            >
+              <PanelLeftOpen className="w-4 h-4" strokeWidth={1.75} />
+            </button>
+          </Tooltip>
+        )}
+
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[13px] min-w-0">
+          <Link
+            to={crumbs.modulePath}
+            className="text-secondary hover:text-primary transition-colors truncate"
+          >
+            {crumbs.moduleLabel}
+          </Link>
+          {crumbs.pageLabel.toLowerCase() !== crumbs.moduleLabel.toLowerCase() && (
+            <>
+              <span className="text-muted select-none">/</span>
+              <span className="font-medium text-primary truncate">
+                {crumbs.pageLabel}
+              </span>
+            </>
+          )}
+        </nav>
       </div>
 
-      {/* Right: DB Badge, 3 Demo Personas, Notifications */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* DB Connection Status Badge */}
-        <div
-          title={isSupabaseConfigured ? 'Connected to Supabase PostgreSQL' : 'Local Relational Database Store Active'}
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border bg-slate-50 text-slate-600 border-slate-200"
+      {/* Right: Notifications & Profile Menu */}
+      <div className="flex items-center gap-2 shrink-0">
+        <DropdownMenu
+          widthClassName="w-80 sm:w-96"
+          trigger={
+            <button
+              type="button"
+              aria-label="Notifications"
+              className="relative flex h-8 w-8 items-center justify-center rounded-md text-secondary hover:text-primary hover:bg-subtle transition-colors"
+            >
+              <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
+              {unreadNotifs.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-600 ring-2 ring-white" />
+              )}
+            </button>
+          }
         >
-          <Database className={`w-3.5 h-3.5 ${isSupabaseConfigured ? 'text-emerald-500' : 'text-blue-500'}`} />
-          <span>{isSupabaseConfigured ? 'Supabase Postgres' : 'Local Relational Store'}</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        </div>
-
-        {/* Reset Database Button */}
-        <button
-          onClick={handleResetDb}
-          title="Reset database to initial clean seed records"
-          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition"
-        >
-          <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-          <span>Reset Data</span>
-        </button>
-
-        {/* Quick Demo Persona Switcher (Exactly 3 Users) */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowUserSwitcher(!showUserSwitcher);
-              setShowNotifications(false);
-            }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-700 transition"
-          >
-            <UserCheck className="w-3.5 h-3.5 text-blue-600" />
-            <span className="hidden sm:inline font-semibold text-slate-600">Active:</span>
-            <span className="font-bold text-slate-900 max-w-[120px] truncate">
-              {currentUser?.name.split(' ')[0]} ({currentUser?.role})
-            </span>
-            <ChevronDown className="w-3 h-3 text-slate-400" />
-          </button>
-
-          {showUserSwitcher && (
-            <div className="absolute right-0 mt-2 w-72 rounded-xl bg-white shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
-              <div className="px-3 py-1.5 border-b border-slate-100">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-500" /> Demonstration Personas
-                </p>
-              </div>
-              <div className="divide-y divide-slate-50">
-                {seedUsers.map((u) => {
-                  const isSelected = u.id === currentUser?.id;
-                  return (
-                    <button
-                      key={u.id}
-                      onClick={() => {
-                        loginAsUser(u.id);
-                        setShowUserSwitcher(false);
-                        if (onNavigate) {
-                          if (u.role === 'admin') onNavigate('admin-overview');
-                          else if (u.role === 'teacher') onNavigate('teacher-overview');
-                          else onNavigate('student-overview');
-                        }
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-50 transition ${
-                        isSelected ? 'bg-blue-50/70' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <img
-                          src={u.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80'}
-                          alt={u.name}
-                          className="w-7 h-7 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">{u.name}</p>
-                          <p className="text-[10px] text-slate-500 capitalize">
-                            {u.role === 'admin' ? 'HOD / Admin' : u.role === 'teacher' ? 'Assistant Professor' : 'Student (1AM22CS089)'}
-                          </p>
-                        </div>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-blue-600" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Notifications Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowNotifications(!showNotifications);
-              setShowUserSwitcher(false);
-            }}
-            className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
-            aria-label="View notifications"
-          >
-            <Bell className="w-5 h-5" />
-            {unreadNotifs.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-pulse">
-                {unreadNotifs.length}
-              </span>
-            )}
-          </button>
-
-          {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl bg-white shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
+          {(close) => (
+            <div>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-subtle">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-bold text-slate-800">System Notifications</h4>
+                  <span className="text-xs font-semibold text-primary">
+                    Notifications
+                  </span>
                   {unreadNotifs.length > 0 && (
-                    <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">
-                      {unreadNotifs.length} new
+                    <span className="rounded px-1.5 py-0.5 text-[11px] font-medium bg-brand-50 text-brand-700 tabular-nums">
+                      {unreadNotifs.length} unread
                     </span>
                   )}
                 </div>
                 {unreadNotifs.length > 0 && (
                   <button
-                    onClick={handleMarkAllRead}
-                    className="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                    type="button"
+                    onClick={() => void markRead()}
+                    className="text-xs font-medium text-brand-600 hover:underline"
                   >
                     Mark all read
                   </button>
                 )}
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+              <div className="max-h-80 overflow-y-auto divide-y divide-border">
                 {notifications.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-slate-400">
-                    No notifications right now.
+                  <div className="py-10 text-center text-xs text-secondary">
+                    No notifications.
                   </div>
                 ) : (
                   notifications.map((notif) => (
-                    <div
+                    <button
                       key={notif.id}
-                      onClick={() => {
-                        db.markNotificationAsRead(notif.id);
-                        if (notif.link && onNavigate) {
-                          setShowNotifications(false);
-                          if (notif.link.includes('teacher/corrections')) onNavigate('teacher-corrections');
-                          else if (notif.link.includes('student/dashboard')) onNavigate('student-overview');
-                          else if (notif.link.includes('student/timetable')) onNavigate('student-timetable');
-                          else if (notif.link.includes('student/checkin')) onNavigate('student-timetable');
-                        }
+                      type="button"
+                      onClick={async () => {
+                        if (!await markRead(notif.id)) return;
+                        const target = resolveNotificationLink(notif.link);
+                        close();
+                        if (target) navigate(target);
                       }}
-                      className={`flex items-start gap-3 p-3.5 hover:bg-slate-50 cursor-pointer transition ${
-                        !notif.is_read ? 'bg-blue-50/40' : ''
+                      className={`w-full text-left flex items-start gap-3 p-3.5 hover:bg-subtle transition-colors ${
+                        !notif.is_read ? 'bg-brand-50/50' : ''
                       }`}
                     >
                       {getNotifIcon(notif.type)}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <p className="text-xs font-bold text-slate-900 truncate">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-medium text-primary truncate">
                             {notif.title}
                           </p>
-                          <span className="text-[10px] text-slate-400 shrink-0">
+                          <span className="text-[11px] text-muted tabular-nums shrink-0">
                             {new Date(notif.created_at).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-2">
+                        <p className="text-xs text-secondary mt-0.5 line-clamp-2">
                           {notif.message}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))
                 )}
               </div>
             </div>
           )}
-        </div>
+        </DropdownMenu>
+
+        {selectDemoAccount && <span className="text-xs font-medium text-secondary">Fictional demo</span>}
+        {/* Account menu */}
+        <DropdownMenu
+          widthClassName="w-72"
+          trigger={
+            <button
+              type="button"
+              aria-label="Account menu"
+              className="flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-brand-500/40"
+            >
+              <Avatar
+                src={currentUser?.avatar_url}
+                name={currentUser?.name}
+                size="sm"
+              />
+            </button>
+          }
+        >
+          {(close) => (
+            <div className="divide-y divide-border text-xs">
+              <div className="px-4 py-3">
+                <p className="font-semibold text-primary truncate">
+                  {currentUser?.name}
+                </p>
+                <p className="text-xs text-secondary truncate mt-0.5">
+                  {currentUser?.email}
+                </p>
+              </div>
+
+              <div className="py-1.5">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await logout();
+                      close();
+                      navigate(ROUTES.LOGIN, { replace: true });
+                    } catch (err) {
+                      toast({ variant: 'error', title: 'Unable to sign out', description: err instanceof Error ? err.message : undefined });
+                    }
+                  }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2 text-left text-red-600 hover:bg-subtle transition-colors font-medium"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </DropdownMenu>
       </div>
     </header>
   );
