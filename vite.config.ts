@@ -1,7 +1,17 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import { isBrowserKey } from './src/services/supabaseBrowserKey.ts'
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  for (const [name, value] of Object.entries(env)) {
+    if (name.startsWith('VITE_SUPABASE_') && /SECRET|SERVICE.ROLE/.test(name)) {
+      throw new Error('Remove private Supabase credentials from all VITE_ environment variables.')
+    }
+    if (['VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_SUPABASE_ANON_KEY'].includes(name) &&
+        value && value !== 'your-publishable-key-here' && !isBrowserKey(value)) {
+      throw new Error(`${name} must contain a Supabase publishable or legacy anon key.`)
+    }
+  }
+  return { plugins: [react()] }
 })

@@ -1,4 +1,4 @@
-import {
+import type {
   User,
   Department,
   Programme,
@@ -24,31 +24,18 @@ import {
   AttendanceStatus,
   MarkedBy,
   DayOfWeek,
+  Enrollment,
 } from '../../types';
-import {
-  initialUsers,
-  initialDepartments,
-  initialProgrammes,
-  initialVTUSchemes,
-  initialClasses,
-  initialSubjects,
-  initialTeachers,
-  initialStudents,
-  initialTeacherAssignments,
-  initialTimetable,
-  initialAttendanceSessions,
-  initialAttendanceRecords,
-  initialCorrectionRequests,
-  initialAcademicActivities,
-  initialNotifications,
-  initialAuditLogs,
-  initialSettings,
-} from './seedData';
-
-const DB_STORAGE_KEY = 'smart_academic_portal_v6';
+export interface AcademicYear { id: string; label: string; starts_on: string; ends_on: string }
+export interface Semester { id: string; academic_year_id: string; number: number }
+export interface Holiday { id: string; day: string; name: string }
 
 export interface DatabaseState {
+  years?: AcademicYear[];
+  semesters?: Semester[];
+  holidays?: Holiday[];
   users: User[];
+  enrollments: Enrollment[];
   departments: Department[];
   programmes: Programme[];
   vtuSchemes: VTUScheme[];
@@ -68,61 +55,51 @@ export interface DatabaseState {
   settings: InstitutionSettings;
 }
 
-class RelationalDatabase {
-  private state: DatabaseState;
-  private listeners: (() => void)[] = [];
+const emptyState: DatabaseState = {
+  users: [], enrollments: [], departments: [], programmes: [], vtuSchemes: [], classes: [], subjects: [],
+  teachers: [], students: [], teacherAssignments: [], timetable: [], timetableChangeLogs: [],
+  attendanceSessions: [], attendanceRecords: [], correctionRequests: [], academicActivities: [],
+  notifications: [], auditLogs: [],
+  settings: {
+    id: '', institution_name: 'Academic Portal', short_name: 'Academic Portal', established_year: 2000,
+    location: '', affiliation: '', management: '', academic_term: '', current_academic_year: '',
+    threshold_percentage: 75, warning_threshold: 80, auto_alerts_enabled: false,
+    code_duration_minutes_default: 10, leave_counts_as_present: false,
+  },
+};
 
-  constructor() {
-    this.state = this.loadState();
+class RelationalDatabase {
+  private state = emptyState;
+  private demoSeed: DatabaseState | null = null;
+  private listeners: (() => void)[] = [];
+  private version = 0;
+
+  public getVersion(): number {
+    return this.version;
   }
 
-  private loadState(): DatabaseState {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const stored = window.localStorage.getItem(DB_STORAGE_KEY);
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse database from localStorage:', e);
-    }
+  public replaceSnapshot(next?: DatabaseState): void {
+    this.state = next ?? emptyState;
+    this.version += 1;
+    this.notifyListeners();
+  }
 
-    // Default to initial seed data
-    const seed: DatabaseState = {
-      users: initialUsers,
-      departments: initialDepartments,
-      programmes: initialProgrammes,
-      vtuSchemes: initialVTUSchemes,
-      classes: initialClasses,
-      subjects: initialSubjects,
-      teachers: initialTeachers,
-      students: initialStudents,
-      teacherAssignments: initialTeacherAssignments,
-      timetable: initialTimetable,
-      timetableChangeLogs: [],
-      attendanceSessions: initialAttendanceSessions,
-      attendanceRecords: initialAttendanceRecords,
-      correctionRequests: initialCorrectionRequests,
-      academicActivities: initialAcademicActivities,
-      notifications: initialNotifications,
-      auditLogs: initialAuditLogs,
-      settings: initialSettings,
-    };
-    this.saveState(seed);
-    return seed;
+  public startDemo(seed: DatabaseState): void {
+    this.demoSeed = seed;
+    this.resetToSeed();
   }
 
   private saveState(state: DatabaseState): void {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(state));
-      }
-    } catch (e) {
-      console.error('Failed to persist database state:', e);
-    }
-    this.state = state;
-    this.notifyListeners();
+    if (!this.demoSeed) throw new Error('Demo database writes are unavailable.');
+    this.replaceSnapshot(state);
+  }
+
+  public getCalendar() {
+    return { years: this.state.years ?? [], semesters: this.state.semesters ?? [], holidays: this.state.holidays ?? [] };
+  }
+
+  public getEnrollments(): Enrollment[] {
+    return this.state.enrollments;
   }
 
   public subscribe(listener: () => void): () => void {
@@ -143,27 +120,8 @@ class RelationalDatabase {
   }
 
   public resetToSeed(): void {
-    const seed: DatabaseState = {
-      users: initialUsers,
-      departments: initialDepartments,
-      programmes: initialProgrammes,
-      vtuSchemes: initialVTUSchemes,
-      classes: initialClasses,
-      subjects: initialSubjects,
-      teachers: initialTeachers,
-      students: initialStudents,
-      teacherAssignments: initialTeacherAssignments,
-      timetable: initialTimetable,
-      timetableChangeLogs: [],
-      attendanceSessions: initialAttendanceSessions,
-      attendanceRecords: initialAttendanceRecords,
-      correctionRequests: initialCorrectionRequests,
-      academicActivities: initialAcademicActivities,
-      notifications: initialNotifications,
-      auditLogs: initialAuditLogs,
-      settings: initialSettings,
-    };
-    this.saveState(seed);
+    if (!this.demoSeed) throw new Error('Demo mode is unavailable.');
+    this.saveState(structuredClone(this.demoSeed));
   }
 
   // --- Audit Logging ---
@@ -1349,7 +1307,7 @@ class RelationalDatabase {
       return { totalSessions: 0, present: 0, absent: 0, leave: 0, percentage: 0, status: 'safe' };
     }
 
-    let relevantSessions = this.state.attendanceSessions.filter((s) => s.class_id === student.class_id);
+    let relevantSessions = this.state.attendanceSessions;
     if (subjectId) {
       relevantSessions = relevantSessions.filter((s) => s.subject_id === subjectId);
     }
@@ -1399,7 +1357,8 @@ class RelationalDatabase {
 
     // Filter subjects by the student's VTU scheme and semester
     const eligibleSubjects = this.state.subjects.filter(
-      (s) => s.vtu_scheme_id === student.vtu_scheme_id && s.semester === student.current_semester
+      (s) => s.vtu_scheme_id === student.vtu_scheme_id && s.semester === student.current_semester &&
+        s.department_id === student.department_id && (!s.programme_id || s.programme_id === student.programme_id)
     );
 
     return eligibleSubjects.map((sub) => {
@@ -1445,21 +1404,21 @@ class RelationalDatabase {
     return result.filter((item) => item.overallPercentage < cutoff || item.declining);
   }
 
-  public getAttendanceTrend(days: number = 7): {
+  public getAttendanceTrend(days = 7, endDate = new Date().toISOString().slice(0,10)): {
     date: string;
     displayDate: string;
     total: number;
     present: number;
     absent: number;
     leave: number;
-    percentage: number;
+    percentage: number | null;
   }[] {
     const map = new Map<string, { present: number; absent: number; leave: number }>();
     const dates: string[] = [];
 
     for (let i = days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+      const d = new Date(endDate + 'T12:00:00Z');
+      d.setUTCDate(d.getUTCDate() - i);
       const iso = d.toISOString().split('T')[0];
       dates.push(iso);
       map.set(iso, { present: 0, absent: 0, leave: 0 });
@@ -1480,16 +1439,17 @@ class RelationalDatabase {
     return dates.map((dt) => {
       const counts = map.get(dt) || { present: 0, absent: 0, leave: 0 };
       const total = counts.present + counts.absent + counts.leave;
-      const percentage = total > 0 ? Math.round((counts.present / total) * 1000) / 10 : 88.5;
+      const attended = counts.present + (this.state.settings.leave_counts_as_present ? counts.leave : 0);
+      const percentage = total > 0 ? Math.round((attended / total) * 1000) / 10 : null;
       const dObj = new Date(dt);
-      const displayDate = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const displayDate = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
       return {
         date: dt,
         displayDate,
-        total: total > 0 ? total : 20,
-        present: total > 0 ? counts.present : 18,
-        absent: total > 0 ? counts.absent : 2,
-        leave: total > 0 ? counts.leave : 0,
+        total,
+        present: counts.present,
+        absent: counts.absent,
+        leave: counts.leave,
         percentage,
       };
     });
@@ -1499,17 +1459,22 @@ class RelationalDatabase {
     department: Department;
     studentCount: number;
     teacherCount: number;
-    averageAttendance: number;
+    averageAttendance: number | null;
   }[] {
-    return this.state.departments.slice(0, 6).map((dept) => {
+    return this.state.departments.map((dept) => {
       const deptStudents = this.state.students.filter((s) => s.department_id === dept.id);
       const deptTeachers = this.state.teachers.filter((t) => t.department_id === dept.id);
 
       let totalPct = 0;
+      let recordedStudents = 0;
       deptStudents.forEach((s) => {
-        totalPct += this.calculateStudentAttendance(s.id).percentage;
+        const stats = this.calculateStudentAttendance(s.id);
+        if (stats.totalSessions > 0) {
+          totalPct += stats.percentage;
+          recordedStudents++;
+        }
       });
-      const avg = deptStudents.length > 0 ? Math.round((totalPct / deptStudents.length) * 10) / 10 : 85.0;
+      const avg = recordedStudents ? Math.round((totalPct / recordedStudents) * 10) / 10 : null;
 
       return {
         department: dept,

@@ -1,11 +1,14 @@
 // Comprehensive Academic & Attendance Portal Programmatic Verification Suite
 import { db } from './src/services/db/database.ts';
+import { demoSeed } from './src/services/db/seedData.ts';
 import { exportToCSV } from './src/services/export.service.ts';
 
 console.log('================================================================');
 console.log('SMART ATTENDANCE & ACADEMIC MANAGEMENT PORTAL');
 console.log('Full System & Feature Verification Test Suite');
 console.log('================================================================\n');
+
+db.startDemo(demoSeed);
 
 // 1. Initial State & Exact 3 Demonstration Accounts Check
 const users = db.getUsers();
@@ -16,7 +19,7 @@ const schemes = db.getVTUSchemes();
 const subjects = db.getSubjects();
 const timetable = db.getTimetable();
 const classes = db.getClasses();
-const settings = db.getSettings();
+
 
 console.log('--- TEST 1: Institutional Identity & Exact 3 Demonstration Accounts ---');
 console.log(`[PASS] Users loaded: ${users.length} (Expected: exactly 3 demo accounts)`);
@@ -81,10 +84,10 @@ console.log(`[PASS] All ${departments.length} departments have linked target cla
 console.log('\n--- TEST 4: Faculty Creation with Custom Designation & Qualification ---');
 const customTeacher = db.createTeacher(
   {
-    name: 'Dr. Vikram Sarabhai',
-    email: 'vikram.s@college.edu',
-    password_hash: 'teacher123',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100',
+    name: 'Fictional Faculty',
+    email: 'faculty-fixture@attendance.example',
+
+
   },
   {
     employee_id: 'FAC-AIML-99',
@@ -115,7 +118,7 @@ const aimlStudent = db.createStudent(
   {
     name: 'Ananya Sharma',
     email: 'ananya.s@college.edu',
-    avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
+
   },
   {
     usn: 'ENG22AI045',

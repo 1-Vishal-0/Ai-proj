@@ -1,0 +1,55 @@
+/*
+ * Enterprise design tokens — single source of truth.
+ * Light mode only for this stage. Tailwind maps these in tailwind.config.js.
+ */
+:root {
+  /* Navigation (dual-tier sidebar) */
+  --nav-rail: #2828D6;          /* primary icon rail */
+  --nav-panel: #3939E7;         /* contextual navigation panel */
+  --nav-active: #5656EB;        /* active item background */
+  --nav-hover: rgba(255, 255, 255, 0.10);
+  --nav-input: rgba(255, 255, 255, 0.14);
+  --nav-text: #FFFFFF;
+  --nav-text-muted: #C7C7FF;
+  --nav-divider: rgba(255, 255, 255, 0.14);
+
+  /* Workspace surfaces */
+  --bg-canvas: #FFFFFF;         /* main workspace */
+  --bg-surface: #FFFFFF;        /* tables, containers, inputs */
+  --bg-subtle: #F9FAFB;         /* secondary surface, table header */
+  --bg-elevated: #FFFFFF;       /* menus, popovers */
+
+  /* Text */
+  --text-primary: #171923;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+
+  /* Borders */
+  --border-default: #E5E7EB;
+  --border-subtle: #F3F4F6;
+
+  /* Brand / interactive */
+  --brand-primary: #3939E7;
+  --brand-primary-hover: #2828D6;
+  --brand-subtle: #EEEEFD;
+
+  /* Semantic attendance status (use only for status, warnings, errors) */
+  --status-present: #16A34A;
+  --status-warning: #D97706;
+  --status-absent: #DC2626;
+
+  /* Charts */
+  --chart-grid: #F3F4F6;
+  --chart-axis: #E5E7EB;
+  --chart-tick: #6B7280;
+  --chart-tooltip-bg: #171923;
+  --chart-tooltip-border: #171923;
+
+  /* Sizing */
+  --header-height: 56px;
+  --rail-width: 64px;
+  --panel-width: 232px;
+  --control-height: 36px;
+
+  color-scheme: light;
+}
