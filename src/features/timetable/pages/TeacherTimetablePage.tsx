@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { demoMode } from '../../../services/supabaseClient';
 import React, { useMemo, useState } from 'react';
 import { Clock, RotateCcw, CalendarCheck, History } from 'lucide-react';
 import type {
@@ -29,6 +31,7 @@ import {
 import { INSTITUTION_CONFIG } from '../../../app/config/institution';
 
 export const TeacherTimetablePage: React.FC = () => {
+  const navigate=useNavigate();
   useDatabaseVersion();
   const { currentTeacher } = useAuth();
   const teacherId =
@@ -240,7 +243,7 @@ export const TeacherTimetablePage: React.FC = () => {
                         size="sm"
                         leftIcon={<CalendarCheck className="w-3.5 h-3.5" />}
                         onClick={() =>
-                          setAttendanceModalSlot({
+                          !demoMode ? navigate('/teacher/mark?slot='+slot.id) : setAttendanceModalSlot({
                             classId: slot.class_id,
                             subjectId: slot.subject_id,
                             startTime: slot.start_time,

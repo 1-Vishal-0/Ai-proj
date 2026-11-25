@@ -9,6 +9,11 @@ import { UnauthorizedPage } from '../components/feedback/UnauthorizedPage';
 import { NotFoundPage } from '../components/feedback/NotFoundPage';
 import { ROLE_DEFAULT_ROUTES, ROUTES } from './config/navigation';
 
+import { demoMode } from '../services/supabaseClient';
+const AcademicSchedulePage = lazy(() => import('../features/timetable/scheduling/AcademicSchedulePage'));
+const ClassroomsPage = lazy(() => import('../features/classrooms/ClassroomsPage'));
+const FacultySessionPage = lazy(()=>import('../features/attendance/pages/FacultySessionPage'));
+const StudentCheckinPage = lazy(()=>import('../features/attendance/pages/StudentCheckinPage'));
 // Lazy-loaded Feature Pages
 const LoginPage = lazy(() =>
   import('../features/auth/pages/LoginPage').then((m) => ({
@@ -183,11 +188,12 @@ const RootRedirect: React.FC = () => {
 };
 
 const PublicOnlyRoute: React.FC = () => {
+  const from = useLocation().state?.from;
   const { currentUser, isLoading, canSetPassword } = useAuth();
   if (isLoading) return <PageLoader />;
   if (canSetPassword) return <Navigate to="/auth/reset" replace />;
   if (currentUser) {
-    return <Navigate to={ROLE_DEFAULT_ROUTES[currentUser.role]} replace />;
+    return <Navigate to={currentUser.role === 'student' && from?.pathname === '/student/check-in' ? {pathname:'/student/check-in',hash:from.hash} : ROLE_DEFAULT_ROUTES[currentUser.role]} replace />;
   }
   return <Outlet />;
 };
@@ -220,7 +226,7 @@ export const AppRouter: React.FC = () => {
             <Route path="submissions" element={<SubmissionsPage />} />
             <Route path="academics" element={<AdminAcademicsPage />} />
             <Route path="subjects" element={<AdminSubjectsPage />} />
-            <Route path="timetable" element={<AdminTimetablePage />} />
+            <Route path="timetable" element={demoMode ? <AdminTimetablePage /> : <AcademicSchedulePage />} />
             <Route path="students" element={<AdminStudentsPage />} />
             <Route path="teachers" element={<AdminTeachersPage />} />
             <Route path="attendance" element={<AdminAttendanceMasterPage />} />
@@ -240,8 +246,10 @@ export const AppRouter: React.FC = () => {
           <Route path={ROUTES.TEACHER_ROOT} element={<DashboardLayout />}>
             <Route index element={<Navigate to={ROUTES.TEACHER_OVERVIEW} replace />} />
             <Route path="overview" element={<TeacherOverviewPage />} />
-            <Route path="timetable" element={<TeacherTimetablePage />} />
-            <Route path="mark" element={<TeacherMarkAttendancePage />} />
+            {!demoMode && <Route path="classrooms" element={<ClassroomsPage />} />}
+            {!demoMode && <Route path="classrooms/:id" element={<ClassroomsPage />} />}
+            <Route path="timetable" element={demoMode ? <TeacherTimetablePage /> : <AcademicSchedulePage />} />
+            <Route path="mark" element={demoMode ? <TeacherMarkAttendancePage /> : <FacultySessionPage />} />
             <Route path="history" element={<TeacherHistoryPage />} />
             <Route path="low-attendance" element={<TeacherLowAttendancePage />} />
             <Route path="corrections" element={<TeacherCorrectionsPage />} />
@@ -254,7 +262,10 @@ export const AppRouter: React.FC = () => {
           <Route path={ROUTES.STUDENT_ROOT} element={<DashboardLayout />}>
             <Route index element={<Navigate to={ROUTES.STUDENT_OVERVIEW} replace />} />
             <Route path="overview" element={<StudentOverviewPage />} />
-            <Route path="timetable" element={<StudentTimetablePage />} />
+            {!demoMode && <Route path="classrooms" element={<ClassroomsPage />} />}
+            {!demoMode && <Route path="classrooms/:id" element={<ClassroomsPage />} />}
+            {!demoMode && <Route path="check-in" element={<StudentCheckinPage />} />}
+            <Route path="timetable" element={demoMode ? <StudentTimetablePage /> : <AcademicSchedulePage />} />
             <Route path="history" element={<StudentHistoryPage />} />
             <Route path="corrections" element={<StudentCorrectionPage />} />
             <Route path="notifications" element={<StudentNotificationsPage />} />

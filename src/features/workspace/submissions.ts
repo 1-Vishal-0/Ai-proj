@@ -1,11 +1,74 @@
-﻿import { db } from '../../services/db/database';
+import { useEffect, useState } from 'react';
+import { db } from '../../services/db/database';
 import { getTodayIsoDate } from '../../lib/date';
+import { demoMode } from '../../services/supabaseClient';
+import { portalRpc } from '../../services/db/portalData';
+import { inactive, type AgendaEntry } from '../timetable/scheduling/calendar';
+import { useScheduleData } from '../timetable/scheduling/scheduleData';
+
+export function usePendingSlots(date: string) {
+  const [clock, setClock] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+  const result = useScheduleData(
+    () =>
+      !demoMode && date && date <= getTodayIsoDate()
+        ? portalRpc<AgendaEntry[]>('schedule_agenda', {
+            first_day: date,
+            last_day: date,
+          })
+        : Promise.resolve([]),
+    date,
+  );
+  if (demoMode)
+    return {
+      rows: pendingSlots(date).map((slot) => ({
+        id: slot.id,
+        time: slot.start_time,
+        title: slot.subject?.code,
+        section: slot.academic_class?.name,
+        teacher: slot.teacher_name || slot.teacher?.user.name,
+      })),
+    };
+  const marked = new Set(db.getRecords().map((record) => record.session_id));
+  const sessions = db
+    .getSessions({ date })
+    .filter((session) => marked.has(session.id));
+  return {
+    error: result?.error,
+    loading: !result,
+    rows: (result?.data || [])
+      .filter(
+        (entry) =>
+          entry.code &&
+          !inactive(entry) &&
+          entry.utc_end &&
+          Date.parse(entry.utc_end) <= clock &&
+          !sessions.some(
+            (session) =>
+              session.timetable_entry_id === entry.entry_id ||
+              (session.class_id === entry.class_id &&
+                session.subject_id === entry.subject_id &&
+                session.teacher_id === entry.teacher_id &&
+                session.start_time.slice(0, 5) === entry.starts?.slice(0, 5)),
+          ),
+      )
+      .map((entry) => ({
+        id: entry.entry_id,
+        time: entry.starts || '',
+        title: entry.code,
+        section: entry.section,
+        teacher: entry.teacher,
+      })),
+  };
+}
 
 export function pendingSlots(date: string) {
   const { years, holidays } = db.getCalendar();
   const today = getTodayIsoDate();
-  if (!date || date > today || holidays.some((h) => h.day === date))
-    return [];
+  if (!date || date > today || holidays.some((h) => h.day === date)) return [];
   const weekday = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     timeZone: 'UTC',

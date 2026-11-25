@@ -3,10 +3,10 @@
 ## Fresh test project in the SQL Editor
 
 1. In the new project's **Authentication → Users**, use **Add user → Create new user**. Set the email to `student@attendance.example`, choose a private password, and enable **Auto Confirm User** for this fictional account.
-2. In **SQL Editor → New query**, paste the full contents of [fresh-project-setup.sql](../supabase/fresh-project-setup.sql) and run it once. It installs the six portal migrations and links the existing Auth identity to a fictional student. Keep the Auth account password in the dashboard workflow.
+2. In **SQL Editor → New query**, paste the full contents of [fresh-project-setup.sql](../supabase/fresh-project-setup.sql) and run it once. It installs the ten portal migrations and links the existing Auth identity to a fictional student. Keep the Auth account password in the dashboard workflow.
 3. Set the app's Project URL and publishable key and sign in with the fictional email and the password you chose.
 
-The SQL Editor applies the schema directly. Before using `supabase db push` on this project later, compare its migration history to the database and mark the six applied versions if their changes are present. [Supabase migration history](https://supabase.com/docs/guides/deployment/database-migrations)
+The SQL Editor applies the schema directly. Before using `supabase db push` on this project later, compare its migration history to the database and mark the ten applied versions if their changes are present. [Supabase migration history](https://supabase.com/docs/guides/deployment/database-migrations)
 
 ## Configure Auth and the frontend
 
@@ -160,3 +160,32 @@ select public.workspace_link_identity(
 ```
 
 **Administration → Branding & permissions** controls the portal display name, department-head roster management and student timetable notifications. Student and faculty accounts cannot change roles. Use the trusted provisioning procedure above for a separately authorized administrator. Audit events record the affected record ID, actor, action, time and department when applicable.
+
+## Live attendance sessions
+
+On an existing six-migration installation, run [the live attendance migration](../supabase/migrations/20261125000700_live_attendance.sql) once in SQL Editor inside a transaction (`begin;` before the file and `commit;` after it). Fresh projects can use the full setup file. The migration preserves existing attendance records and publishes the faculty roll-call table to the Supabase Realtime publication when present. Verify that `public.lecture_roll_calls` is enabled in that publication. The student roster, PINs and QR tokens stay in private tables. [Supabase Postgres Changes](https://supabase.com/docs/guides/realtime/postgres-changes)
+
+Faculty open **Mark attendance**, select a scheduled lecture and create a draft. Select a window of 1–60 minutes and open check-in. Students sign in and enter the eight-digit code under **Lecture check-in**, or scan the instructor’s QR with their phone camera and confirm check-in. Use a portal HTTPS address reachable from the student’s phone for QR testing. A QR generated at localhost points back to the scanning device.
+
+Faculty can manually mark students in the draft, open or closed roster. Closing or expiry ends self-check-in. A closed session still requires faculty review and explicit finalization. Under **Branding & permissions**, administrators can require a mark for everyone or record unmarked students as absent at submission. Reporting uses the committed attendance records. Post-submission changes follow the documented attendance correction workflow.
+
+Numeric codes and QR tokens can be shared while valid. Faculty should compare the live roster with the students present. The server checks the signed-in student, institution, dated enrollment and expiry on every submission, and permits eight attempts per account per minute. The faculty screen refreshes the authorized roster when counters change and periodically reconciles it if the connection drops.
+
+Run `npm run test:db` for role, expiry, duplicate and lifecycle checks. For the concurrency test, point `ATTENDANCE_TEST_POSTGRES_URL` at a dedicated loopback PostgreSQL test cluster with database-creation privileges and run `npm run test:session-races`. It creates a disposable database, adds missing Supabase fixture roles to the local cluster, and runs overlapping transactions on two connections. `npm run test:auth` exercises mobile QR sign-in, numeric feedback and the faculty display against a fixture API.
+
+
+## Subject classrooms
+
+Apply the classroom migration 20261125000800 after the live attendance migration. Faculty open **My classrooms** and create one classroom per teaching assignment. Faculty invite or add an existing student by college email from **People**. An invitation appears in the student's **My classrooms**. The student joins there. Access to classroom materials follows active section enrollment and classroom membership.
+
+Use **Attendance** to open the existing scheduled lecture workflow or review recorded attendance. Classroom membership governs access to materials. The registrar's dated section enrollment governs the official lecture roster and individual lecture marks. Faculty can post announcements, import plain-text or Markdown notes for display as text, and publish assignments with instructions and an optional due date.
+
+## Academic scheduling
+
+Apply migration 20261125000900 after the classroom migration. In the live portal, open **Academic timetable → Versions** to create a draft, choose an existing teaching assignment for each weekly slot and publish with a future effective date. The calendar uses the version effective on the day being viewed. Students receive a version announcement when institutional timetable notifications are enabled.
+
+Faculty open a lecture in **Timetable** to start attendance or request a cancellation, move, or substitute. A substitute needs an existing teaching assignment for the subject and section. Administrators review requests under **Requests**. Approval applies to the selected occurrence. The original remains visible with its changed status. Existing attendance locks that occurrence against a schedule change.
+
+Use **Events** to manage institution-wide holidays, examinations and academic events. Holidays suppress weekly lectures for the date. Examinations and academic events appear as calendar entries. Use a timetable slot when a session needs faculty, section and room allocation checks.
+
+Students can download an ICS snapshot of the displayed dates. Timed entries use institutional time converted to UTC. Holidays are all-day entries. [iCalendar specification](https://www.rfc-editor.org/rfc/rfc5545)

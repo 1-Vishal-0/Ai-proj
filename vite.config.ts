@@ -13,5 +13,10 @@ export default defineConfig(({ mode }) => {
       throw new Error(`${name} must contain a Supabase publishable or legacy anon key.`)
     }
   }
-  return { plugins: [react()] }
+  return {
+    plugins: [react()],
+    cacheDir: `node_modules/.vite/${env.VITE_PORTAL_MODE === 'demo' ? 'demo' : 'portal'}`,
+    resolve: { dedupe: ['react', 'react-dom'] },
+    optimizeDeps: { include: ['react', 'react-dom/client', 'react-router-dom', 'recharts'] },
+  }
 })

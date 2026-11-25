@@ -39,6 +39,7 @@ export interface InstitutionSettings {
   threshold_percentage: number;
   warning_threshold: number;
   auto_alerts_enabled: boolean;
+  unmarked_policy?: 'absent' | 'require_mark';
   code_duration_minutes_default: number;
   leave_counts_as_present: boolean;
   hod_roster_management?: boolean;

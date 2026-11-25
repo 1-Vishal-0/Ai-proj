@@ -1,0 +1,40 @@
+﻿-- Run inside the disposable authorization fixture transaction.
+reset role;
+update public.user_profiles set enabled=true where auth_id=attendance_test.id(102);
+update public.institution_settings set time_zone=case when extract(isodow from now() at time zone 'UTC')<>7 then 'UTC'
+ when extract(isodow from now() at time zone 'Pacific/Kiritimati')<>7 then 'Pacific/Kiritimati' else 'Etc/GMT+12' end where institution_id=id(1);
+select set_config('attendance_test.today',(select (now() at time zone time_zone)::date::text from institution_settings where institution_id=id(1)),true);
+update academic_years set ends_on=greatest(ends_on,current_date+2) where id=id(21);
+update timetable_slots set day_of_week=trim(to_char(current_setting('attendance_test.today')::date,'Day')) where id=id(91);
+set local role authenticated;
+select set_config('request.jwt.claim.sub',id(102)::text,true);
+select set_config('attendance_test.call',lecture_draft(id(91),current_setting('attendance_test.today')::date,'lecture')::text,true);
+select lecture_transition(current_setting('attendance_test.call')::uuid,'open',5);
+select set_config('attendance_test.pin',lecture_review(current_setting('attendance_test.call')::uuid)->>'pin',true);
+select set_config('attendance_test.qr',lecture_review(current_setting('attendance_test.call')::uuid)->>'token',true);
+select set_config('request.jwt.claim.sub',id(107)::text,true);
+select denied($q$select lecture_review(current_setting('attendance_test.call')::uuid)$q$,'42501');
+select assert((select count(*)=0 from lecture_roll_calls),'Unassigned teacher cannot subscribe to roll call');
+select set_config('request.jwt.claim.sub',id(108)::text,true);
+select assert(lecture_checkin(current_setting('attendance_test.pin')) like 'Invalid%','Foreign institution rejected');
+select set_config('request.jwt.claim.sub',id(105)::text,true);
+select assert(lecture_checkin(current_setting('attendance_test.pin')) like 'You are not enrolled%','Unenrolled student rejected');
+select set_config('request.jwt.claim.sub',id(103)::text,true);
+select assert(lecture_checkin(current_setting('attendance_test.pin'))='Checked in successfully.','Numeric check-in');
+select assert(lecture_checkin(current_setting('attendance_test.qr')) like 'Attendance already%','Cross-method duplicate rejected');
+select set_config('request.jwt.claim.sub',id(104)::text,true);
+select assert(lecture_checkin(current_setting('attendance_test.qr'))='Checked in successfully.','QR check-in');
+select lecture_checkin('invalid') from generate_series(1,7);
+select assert(lecture_checkin(current_setting('attendance_test.qr')) like 'Too many%','Invalid attempts persisted');
+reset role;
+update public.lecture_roll_calls set expires_at=clock_timestamp()-interval '1 second' where id=current_setting('attendance_test.call')::uuid;
+set local role authenticated;
+select set_config('request.jwt.claim.sub',id(103)::text,true);
+select assert(lecture_checkin(current_setting('attendance_test.qr')) like 'Invalid or expired%','Expired credential rejected on server');
+select set_config('request.jwt.claim.sub',id(102)::text,true);
+select assert(lecture_review(current_setting('attendance_test.call')::uuid)->'session'->>'phase'='closed','Expired session closed for review');
+select lecture_manual(current_setting('attendance_test.call')::uuid,(select id from students where roll_number='CS-02'),'leave');
+select lecture_transition(current_setting('attendance_test.call')::uuid,'finalize',null,
+ (select version from lecture_roll_calls where id=current_setting('attendance_test.call')::uuid),lecture_review(current_setting('attendance_test.call')::uuid)->>'signature');
+select assert((select count(*)=2 from attendance_records where session_id=(select final_id from lecture_roll_calls where id=current_setting('attendance_test.call')::uuid)),'One final record per enrolled student');
+select denied($q$select lecture_manual(current_setting('attendance_test.call')::uuid,(select id from students where roll_number='CS-02'),'present')$q$,'P0001');

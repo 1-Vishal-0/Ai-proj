@@ -1,3 +1,4 @@
+import { demoMode } from '../../services/supabaseClient';
 import type React from 'react';
 import {
   LayoutGrid,
@@ -200,6 +201,7 @@ const baseModules: Record<Exclude<UserRole, 'hod'>, NavModuleConfig[]> = {
         {
           groupLabel: 'Workspace',
           items: [
+            ...(demoMode ? [] : [{path:'/teacher/classrooms',label:'My classrooms',icon:BookOpen}]),
             { path: ROUTES.TEACHER_MARK, label: 'Mark attendance', icon: CalendarCheck },
             { path: ROUTES.TEACHER_HISTORY, label: 'Attendance records', icon: History },
           ],
@@ -266,7 +268,7 @@ const baseModules: Record<Exclude<UserRole, 'hod'>, NavModuleConfig[]> = {
       groups: [
         {
           groupLabel: 'Records',
-          items: [{ path: ROUTES.STUDENT_HISTORY, label: 'Attendance records', icon: History }],
+          items: [...(demoMode ? [] : [{path:'/student/classrooms',label:'My classrooms',icon:BookOpen}, { path:'/student/check-in',label:'Lecture check-in',icon:CalendarCheck }]), { path: ROUTES.STUDENT_HISTORY, label: 'Attendance records', icon: History }],
         },
       ],
     },

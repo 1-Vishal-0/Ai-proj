@@ -1,3 +1,4 @@
+import { demoMode } from '../../../services/supabaseClient';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -296,7 +297,7 @@ export const TeacherOverviewPage: React.FC = () => {
                         size="sm"
                         leftIcon={<CalendarCheck className="w-3.5 h-3.5" />}
                         onClick={() =>
-                          setAttendanceModalSlot({
+                          !demoMode ? navigate('/teacher/mark?slot='+slot.id) : setAttendanceModalSlot({
                             classId: slot.class_id,
                             subjectId: slot.subject_id,
                             startTime: slot.start_time,
@@ -304,7 +305,7 @@ export const TeacherOverviewPage: React.FC = () => {
                           })
                         }
                       >
-                        {isSubmitted ? 'Edit Roster' : 'Take Attendance'}
+                        {isSubmitted ? (demoMode?'Edit Roster':'Review attendance') : 'Take Attendance'}
                       </Button>
 
                       <Tooltip content="Reschedule period">
@@ -312,7 +313,7 @@ export const TeacherOverviewPage: React.FC = () => {
                           variant="outline"
                           size="icon"
                           aria-label="Reschedule period"
-                          onClick={() => setRescheduleSlot(slot)}
+                          onClick={() => demoMode ? setRescheduleSlot(slot) : navigate('/teacher/timetable')}
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                         </Button>
