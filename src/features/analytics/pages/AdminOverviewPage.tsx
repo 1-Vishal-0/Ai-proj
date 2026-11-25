@@ -1,5 +1,9 @@
 import React from 'react';
+<<<<<<< HEAD
 import { usePendingSlots } from '../../workspace/submissions';
+=======
+import { pendingSlots } from '../../workspace/submissions';
+>>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 import '../../workspace/workspace.css';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -67,8 +71,12 @@ export const AdminOverviewPage: React.FC = () => {
   const todayTotal = todayPresent + todayAbsent + todayLeave;
   const attended = todayPresent + (settings.leave_counts_as_present ? todayLeave : 0);
   const todayAttendance = todayTotal ? Math.round(attended * 100 / todayTotal) + '%' : '—';
+<<<<<<< HEAD
   const pendingSchedule = usePendingSlots(today);
   const pending = pendingSchedule.rows;
+=======
+  const pending = pendingSlots(today);
+>>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 
   const trendData = analyticsService.getAttendanceTrend(7);
   const deptStats = analyticsService.getDepartmentStats().map((item) => ({

@@ -22,6 +22,7 @@ try {
   const setup = await sql('../supabase/fresh-project-setup.sql', import.meta.url);
   const workspaceMigration = await sql('20261125000600_admin_workspace.sql',directory);
   assert.ok(setup.includes(workspaceMigration.trim()), 'SQL Editor setup must include the workspace migration');
+<<<<<<< HEAD
   const liveMigration = await sql('20261125000700_live_attendance.sql',directory);
   assert.ok(setup.includes(liveMigration.trim()), 'SQL Editor setup must include the live session migration');
   assert.ok(setup.includes((await sql('20261125000800_classrooms.sql',directory)).trim()));
@@ -34,6 +35,12 @@ try {
   const classroomTests = await sql('../supabase/tests/classrooms.sql', import.meta.url);
   const scheduleTests = await sql('../supabase/tests/academic_schedule.sql', import.meta.url);
   await db.exec(fixture.replace(/rollback;\s*$/i, () => liveTests + '\n' + classroomTests + '\n' + scheduleTests + '\nreset role; rollback;'));
+=======
+  for (const file of migrations) {
+    await db.exec('begin; ' + await sql(file, directory) + '; commit;');
+  }
+  await db.exec(await sql('../supabase/tests/authorization.sql', import.meta.url));
+>>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
   console.log('PostgreSQL migrations, authorization, duplicate prevention and transactional workflows passed.');
   await db.exec("alter table auth.users add column email_confirmed_at timestamptz; insert into public.institutions(name) values('Fictional Test Institute'); insert into auth.users(email,email_confirmed_at) values('admin@attendance.example',now())");
   const linkAdmin = await sql('../supabase/link-test-admin.sql',import.meta.url);

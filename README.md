@@ -2,10 +2,15 @@
 
 React and TypeScript attendance management for institutions, department heads, faculty and students. Supabase Auth handles sign-in and password recovery. PostgreSQL stores academic records and enforces institutional, departmental and classroom permissions.
 
+<<<<<<< HEAD
 Read the [project context and AMC rollout handoff](docs/PROJECT_CONTEXT.md) for the current architecture, deployment state, account setup and remaining work.
 
 ## Run locally
 
+=======
+## Run locally
+
+>>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 ```text
 npm ci
 npm run dev

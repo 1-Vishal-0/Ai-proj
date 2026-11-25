@@ -3,10 +3,17 @@
 ## Fresh test project in the SQL Editor
 
 1. In the new project's **Authentication → Users**, use **Add user → Create new user**. Set the email to `student@attendance.example`, choose a private password, and enable **Auto Confirm User** for this fictional account.
+<<<<<<< HEAD
 2. In **SQL Editor → New query**, paste the full contents of [fresh-project-setup.sql](../supabase/fresh-project-setup.sql) and run it once. It installs the ten portal migrations and links the existing Auth identity to a fictional student. Keep the Auth account password in the dashboard workflow.
 3. Set the app's Project URL and publishable key and sign in with the fictional email and the password you chose.
 
 The SQL Editor applies the schema directly. Before using `supabase db push` on this project later, compare its migration history to the database and mark the ten applied versions if their changes are present. [Supabase migration history](https://supabase.com/docs/guides/deployment/database-migrations)
+=======
+2. In **SQL Editor → New query**, paste the full contents of [fresh-project-setup.sql](../supabase/fresh-project-setup.sql) and run it once. It installs the six portal migrations and links the existing Auth identity to a fictional student. Keep the Auth account password in the dashboard workflow.
+3. Set the app's Project URL and publishable key and sign in with the fictional email and the password you chose.
+
+The SQL Editor applies the schema directly. Before using `supabase db push` on this project later, compare its migration history to the database and mark the six applied versions if their changes are present. [Supabase migration history](https://supabase.com/docs/guides/deployment/database-migrations)
+>>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 
 ## Configure Auth and the frontend
 
@@ -160,6 +167,7 @@ select public.workspace_link_identity(
 ```
 
 **Administration → Branding & permissions** controls the portal display name, department-head roster management and student timetable notifications. Student and faculty accounts cannot change roles. Use the trusted provisioning procedure above for a separately authorized administrator. Audit events record the affected record ID, actor, action, time and department when applicable.
+<<<<<<< HEAD
 
 ## Live attendance sessions
 
@@ -189,3 +197,5 @@ Faculty open a lecture in **Timetable** to start attendance or request a cancell
 Use **Events** to manage institution-wide holidays, examinations and academic events. Holidays suppress weekly lectures for the date. Examinations and academic events appear as calendar entries. Use a timetable slot when a session needs faculty, section and room allocation checks.
 
 Students can download an ICS snapshot of the displayed dates. Timed entries use institutional time converted to UTC. Holidays are all-day entries. [iCalendar specification](https://www.rfc-editor.org/rfc/rfc5545)
+=======
+>>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
