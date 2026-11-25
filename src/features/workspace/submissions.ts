@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 import { db } from '../../services/db/database';
 import { getTodayIsoDate } from '../../lib/date';
@@ -65,20 +64,11 @@ export function usePendingSlots(date: string) {
       })),
   };
 }
-=======
-﻿import { db } from '../../services/db/database';
-import { getTodayIsoDate } from '../../lib/date';
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 
 export function pendingSlots(date: string) {
   const { years, holidays } = db.getCalendar();
   const today = getTodayIsoDate();
-<<<<<<< HEAD
   if (!date || date > today || holidays.some((h) => h.day === date)) return [];
-=======
-  if (!date || date > today || holidays.some((h) => h.day === date))
-    return [];
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
   const weekday = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     timeZone: 'UTC',

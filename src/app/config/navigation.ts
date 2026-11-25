@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import { demoMode } from '../../services/supabaseClient';
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 import type React from 'react';
 import {
   LayoutGrid,
@@ -204,10 +201,7 @@ const baseModules: Record<Exclude<UserRole, 'hod'>, NavModuleConfig[]> = {
         {
           groupLabel: 'Workspace',
           items: [
-<<<<<<< HEAD
             ...(demoMode ? [] : [{path:'/teacher/classrooms',label:'My classrooms',icon:BookOpen}]),
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
             { path: ROUTES.TEACHER_MARK, label: 'Mark attendance', icon: CalendarCheck },
             { path: ROUTES.TEACHER_HISTORY, label: 'Attendance records', icon: History },
           ],
@@ -274,11 +268,7 @@ const baseModules: Record<Exclude<UserRole, 'hod'>, NavModuleConfig[]> = {
       groups: [
         {
           groupLabel: 'Records',
-<<<<<<< HEAD
           items: [...(demoMode ? [] : [{path:'/student/classrooms',label:'My classrooms',icon:BookOpen}, { path:'/student/check-in',label:'Lecture check-in',icon:CalendarCheck }]), { path: ROUTES.STUDENT_HISTORY, label: 'Attendance records', icon: History }],
-=======
-          items: [{ path: ROUTES.STUDENT_HISTORY, label: 'Attendance records', icon: History }],
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
         },
       ],
     },

@@ -23,11 +23,7 @@ const settings = {
   id: '00000000-0000-4000-8000-000000000003', institution_name: 'Fictional Institute', short_name: 'Fixture Portal',
   academic_term: 'Semester 1', threshold_percentage: 75, warning_threshold: 80,
 };
-<<<<<<< HEAD
 const server = await createServer({ cacheDir: 'node_modules/.vite/auth-test', server: { host: '127.0.0.1', port: 4192, strictPort: true } });
-=======
-const server = await createServer({ server: { host: '127.0.0.1', port: 4192, strictPort: true } });
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 let browser;
 try {
   await server.listen();
@@ -40,14 +36,11 @@ try {
   let recoverRequests = 0;
   let verifyRequests = 0;
   let passwordChanged = false;
-<<<<<<< HEAD
   const lecture = {id:'00000000-0000-4000-8000-000000000091',slot_id:'fixture-slot',day:'2026-11-25',starts:'09:00',phase:'open',version:1,present_count:0,expires_at:new Date(Date.now()+300000).toISOString()};
   const qrToken='00000000-0000-4000-8000-000000000092';
   const classroom = {id:'00000000-0000-4000-8000-000000000093',class_id:lecture.id,subject_id:qrToken,subject:'Introduction to Computing',code:'CS101',semester:1,section:'A',academic_year:'2026-2027'};
   let classroomJoined = false;
   const calendarDay = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
   const origin = server.resolvedUrls.local[0];
   const expectRoute = (path) => page.waitForURL(new URL(path, origin).href);
   await page.route(api + '/**', async (route) => {
@@ -87,7 +80,6 @@ try {
         return isJson(url.searchParams.has('id') ? [] : [settings]);
       case '/rest/v1/departments':
         return isJson(url.searchParams.has('id') ? [] : [{id:'00000000-0000-4000-8000-000000000010',name:'Computing',code:'CS'}]);
-<<<<<<< HEAD
       case '/rest/v1/lecture_roll_calls':
         return isJson([lecture]);
       case '/rest/v1/rpc/lecture_review':
@@ -107,8 +99,6 @@ try {
       case '/rest/v1/rpc/schedule_attendance':
         assert.equal(request.postDataJSON().source_slot,lecture.id);
         return isJson(lecture.id);
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
       default:
         assert.ok(url.pathname.startsWith('/rest/v1/'), 'Unexpected request ' + url.pathname);
         return isJson([]);
@@ -162,7 +152,6 @@ try {
   await page.getByLabel(/^Password/).fill(password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expectRoute('/admin/overview');
-<<<<<<< HEAD
   const verifyOverview = async () => {
     await page.getByRole('heading', {name:'Institution overview',level:1}).waitFor();
     await page.locator('main .recharts-wrapper').nth(1).waitFor();
@@ -171,8 +160,6 @@ try {
   await verifyOverview();
   await page.reload();
   await verifyOverview();
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
   const nav = page.getByRole('complementary', {name:'Primary navigation'});
   for (const group of ['Workspace','Academic Management','People','Attendance','Administration']) {
     await nav.getByRole('heading',{name:group,exact:true}).waitFor();
@@ -192,7 +179,6 @@ try {
   await page.getByRole('cell',{name:'Duplicate email, Duplicate identifier'}).waitFor();
   assert.ok(await page.getByRole('button',{name:'Register 2 people'}).isDisabled());
   console.log('Administrator navigation, scoped workspace pages and CSV preview passed.');
-<<<<<<< HEAD
   await page.goto(new URL('/admin/timetable',origin).href);
   await page.getByRole('button',{name:'Versions',exact:true}).click();
   await page.getByRole('heading',{name:'Timetable versions'}).waitFor();
@@ -238,8 +224,6 @@ try {
   await page.getByRole('button',{name:'Export calendar (.ics)'}).click();
   assert.equal((await download).suggestedFilename(),'academic-timetable.ics');
   console.log('Faculty QR display, mobile check-in, classroom navigation, student joining and notes passed.');
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 } finally {
   await browser?.close();
   await server.close();

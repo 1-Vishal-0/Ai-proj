@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import { demoMode } from '../../../services/supabaseClient';
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -300,11 +297,7 @@ export const TeacherOverviewPage: React.FC = () => {
                         size="sm"
                         leftIcon={<CalendarCheck className="w-3.5 h-3.5" />}
                         onClick={() =>
-<<<<<<< HEAD
                           !demoMode ? navigate('/teacher/mark?slot='+slot.id) : setAttendanceModalSlot({
-=======
-                          setAttendanceModalSlot({
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
                             classId: slot.class_id,
                             subjectId: slot.subject_id,
                             startTime: slot.start_time,
@@ -312,11 +305,7 @@ export const TeacherOverviewPage: React.FC = () => {
                           })
                         }
                       >
-<<<<<<< HEAD
                         {isSubmitted ? (demoMode?'Edit Roster':'Review attendance') : 'Take Attendance'}
-=======
-                        {isSubmitted ? 'Edit Roster' : 'Take Attendance'}
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
                       </Button>
 
                       <Tooltip content="Reschedule period">
@@ -324,11 +313,7 @@ export const TeacherOverviewPage: React.FC = () => {
                           variant="outline"
                           size="icon"
                           aria-label="Reschedule period"
-<<<<<<< HEAD
                           onClick={() => demoMode ? setRescheduleSlot(slot) : navigate('/teacher/timetable')}
-=======
-                          onClick={() => setRescheduleSlot(slot)}
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                         </Button>

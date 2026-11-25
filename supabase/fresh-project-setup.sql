@@ -1941,7 +1941,6 @@ begin
 end;
 $$;
 
-<<<<<<< HEAD
 -- Live roll calls stage marks separately until the instructor reviews and submits the roster.
 alter table public.institution_settings add column unmarked_policy text not null default 'absent'
  check(unmarked_policy in ('absent','require_mark'));
@@ -2736,8 +2735,6 @@ end $$;
 revoke all on function public.schedule_agenda(date,date) from public,anon,authenticated;
 grant execute on function public.schedule_agenda(date,date) to authenticated;
 
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
 -- Create the minimum fictional academic data needed by the dashboard.
 do $$
 declare

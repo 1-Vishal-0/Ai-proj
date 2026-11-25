@@ -8,10 +8,7 @@ export default function PolicyPage() {
   const [name, setName] = useState(settings.short_name);
   const [hod, setHod] = useState(!!settings.hod_roster_management);
   const [notices, setNotices] = useState(settings.notify_timetable !== false);
-<<<<<<< HEAD
   const [policy,setPolicy]=useState(settings.unmarked_policy || 'absent');
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
   const action = useAction();
   return (
     <div className="workspace-page">
@@ -65,11 +62,8 @@ export default function PolicyPage() {
           {action.feedback}
         </form>
       </Panel>
-<<<<<<< HEAD
       <Panel title="Final attendance submission"><Field label="Unmarked students"><select value={policy} onChange={e=>setPolicy(e.target.value==='absent'?'absent':'require_mark')}><option value="absent">Mark absent when submitted</option><option value="require_mark">Require an explicit faculty mark</option></select></Field>
         <Button disabled={action.busy} onClick={()=>action.run(()=>mutate('lecture_policy',{policy}),'Attendance policy saved.')}>Save attendance policy</Button></Panel>
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
     </div>
   );
 }

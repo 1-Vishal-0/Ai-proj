@@ -9,12 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test:auth": "node scripts/test-auth.mjs",
-<<<<<<< HEAD
     "test:db": "node scripts/test-db.mjs",
     "test:session-races": "node scripts/test-session-races.mjs"
-=======
-    "test:db": "node scripts/test-db.mjs"
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.2",
@@ -35,18 +31,12 @@
     "@electric-sql/pglite": "^0.6.0",
     "@types/node": "^24.19.2",
     "@types/papaparse": "^5.5.2",
-<<<<<<< HEAD
     "@types/qrcode": "^1.5.6",
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
-<<<<<<< HEAD
     "pg": "^8.23.1",
-=======
->>>>>>> 83771e38dd27fbe3350e9fcc5c15369f2381ab71
     "playwright": "^1.65.1",
     "typescript": "~7.0.2",
     "vite": "^8.3.6"
